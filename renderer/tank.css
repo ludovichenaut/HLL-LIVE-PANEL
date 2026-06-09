@@ -1,0 +1,148 @@
+/*
+======================================================
+
+████████╗ ██████╗ ███╗   ██╗████████╗ ██████╗ ███╗   ██╗
+╚══██╔══╝██╔═══██╗████╗  ██║╚══██╔══╝██╔═══██╗████╗  ██║
+   ██║   ██║   ██║██╔██╗ ██║   ██║   ██║   ██║██╔██╗ ██║
+   ██║   ██║   ██║██║╚██╗██║   ██║   ██║   ██║██║╚██╗██║
+   ██║   ╚██████╔╝██║ ╚████║   ██║   ╚██████╔╝██║ ╚████║
+   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
+
+            ██████╗ █████╗ ██████╗  ██████╗ ████████╗████████╗███████╗
+           ██╔════╝██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝╚══██╔══╝██╔════╝
+           ██║     ███████║██████╔╝██║   ██║   ██║      ██║   █████╗
+           ██║     ██╔══██║██╔══██╗██║   ██║   ██║      ██║   ██╔══╝
+           ╚██████╗██║  ██║██║  ██║╚██████╔╝   ██║      ██║   ███████╗
+            ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝      ╚═╝   ╚══════╝
+
+HLL LIVE STATS OVERLAY
+CREATED BY [CHM3] TONTONCAROTTE
+
+© 2026 TONTONCAROTTE - ALL RIGHTS RESERVED
+
+FAN MADE PROJECT
+NOT AFFILIATED WITH TEAM17 OR HELL LET LOOSE
+
+======================================================
+*/
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: transparent;
+  overflow: hidden;
+  color: white;
+}
+
+#tankWidget {
+  width: 100%;
+  height: 100vh;
+  background: rgba(15, 18, 14, 0.88);
+  border: 1px solid rgba(180, 150, 80, 0.8);
+  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 8px;
+}
+
+.drag {
+  -webkit-app-region: drag;
+}
+
+.tank-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #f2c14e;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+#closeTank {
+  -webkit-app-region: no-drag;
+  border: none;
+  background: rgba(120, 30, 30, 0.9);
+  color: white;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.tank-stats {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.tank-stats div {
+  flex: 1;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px;
+}
+
+.tank-stats span {
+  display: block;
+  font-size: 10px;
+  opacity: 0.75;
+}
+
+.tank-stats strong {
+  font-size: 20px;
+}
+
+.crew-list {
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: #ddd;
+}
+
+.tank-feed {
+  height: 130px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.feed-row {
+  padding: 4px 6px;
+  margin-bottom: 4px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.feed-row.kill {
+  color: #ffcf5a;
+}
+
+.feed-row.death {
+  color: #ff6b6b;
+}
+
+.empty {
+  color: white;
+  opacity: 0.7;
+  font-style: italic;}
+  .crew-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.crew-form input {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(180,150,80,0.6);
+  color: white;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 11px;
+}
+
+.crew-form button {
+  background: rgba(45,66,55,0.95);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 8px;
+  cursor: pointer;
+}

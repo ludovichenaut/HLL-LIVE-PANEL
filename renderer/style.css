@@ -1,0 +1,456 @@
+
+/*
+======================================================
+
+████████╗ ██████╗ ███╗   ██╗████████╗ ██████╗ ███╗   ██╗
+╚══██╔══╝██╔═══██╗████╗  ██║╚══██╔══╝██╔═══██╗████╗  ██║
+   ██║   ██║   ██║██╔██╗ ██║   ██║   ██║   ██║██╔██╗ ██║
+   ██║   ██║   ██║██║╚██╗██║   ██║   ██║   ██║██║╚██╗██║
+   ██║   ╚██████╔╝██║ ╚████║   ██║   ╚██████╔╝██║ ╚████║
+   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
+
+            ██████╗ █████╗ ██████╗  ██████╗ ████████╗████████╗███████╗
+           ██╔════╝██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝╚══██╔══╝██╔════╝
+           ██║     ███████║██████╔╝██║   ██║   ██║      ██║   █████╗
+           ██║     ██╔══██║██╔══██╗██║   ██║   ██║      ██║   ██╔══╝
+           ╚██████╗██║  ██║██║  ██║╚██████╔╝   ██║      ██║   ███████╗
+            ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝      ╚═╝   ╚══════╝
+
+HLL LIVE STATS OVERLAY
+CREATED BY [CHM3] TONTONCAROTTE
+
+© 2026 TONTONCAROTTE - ALL RIGHTS RESERVED
+
+FAN MADE PROJECT
+NOT AFFILIATED WITH TEAM17 OR HELL LET LOOSE
+
+======================================================
+*/
+*{
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  user-select: none;
+}
+
+body {
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+#widget {
+    width: 430px;
+  height: 610px;
+  transform-origin: top left;
+
+  background: rgba(12, 15, 20, 0.82);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 16px;
+
+  color: white;
+  padding: 10px;
+  backdrop-filter: blur(8px);
+
+  overflow: hidden;
+}
+#widget.mini {
+  transform: scale(0.72);
+}
+.drag-zone {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.top-buttons {
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.match-score {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+.score-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: white;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+.score-line span {
+  color: white !important;
+}
+.shortcut-info {
+  font-size: 10px;
+  color: rgba(255,255,255,0.65);
+  margin-right: 2px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+.hidden {
+  display: none !important;
+}
+
+#tankPanel {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+}
+.player-config{
+  display:flex;
+  gap:6px;
+  margin-top:8px;
+  margin-bottom:8px;
+}
+
+#playerNameInput{
+  flex:1;
+  height:34px;
+  border:none;
+  border-radius:8px;
+  padding:0 10px;
+  background:rgba(20,20,20,.75);
+  color:white;
+  font-size:14px;
+  outline:none;
+}
+
+#savePlayerName{
+  width:42px;
+  border:none;
+  border-radius:8px;
+  background:#2d4237;
+  color:white;
+  cursor:pointer;
+  font-size:16px;
+}
+#tankPanel input {
+  width: 100%;
+  margin: 4px 0;
+}
+.drag-zone button,
+#feedBtn,
+#mouseToggleBtn,
+#compactBtn,
+#closeBtn {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  background-image: none !important;
+
+  padding: 0 !important;
+
+  border-radius: 6px;
+
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button::-moz-focus-inner {
+  border: 0;
+}
+.shortcut-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.shortcut-text {
+  font-size: 10px;
+  color: #aaa;
+}
+
+select {
+  -webkit-app-region: no-drag;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.title {
+  font-size: 12px;
+  color: #aaa;
+  letter-spacing: 2px;
+}
+.player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.player-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.my-faction-logo {
+  width: 28px;
+  height: 28px;
+
+  object-fit: contain;
+
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  padding: 3px;
+
+  filter:
+    drop-shadow(0 0 3px black)
+    drop-shadow(0 0 6px black);
+}
+.player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.player {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.match-score {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 22px;
+  font-weight: bold;
+
+  color: white;
+}
+#mouseToggleBtn {
+  transition: 0.2s ease;
+
+  font-weight: bold;
+
+  border: none;
+  border-radius: 6px;
+
+  width: 28px;
+  height: 28px;
+}
+.team-logo {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+
+  filter:
+    invert(1)
+    brightness(2)
+    drop-shadow(0 0 3px black);
+}
+#closeBtn {
+  -webkit-app-region: no-drag;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.player {
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  background: rgba(255,255,255,0.08);
+  padding: 8px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+#event {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(0, 255, 136, 0.12);
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.death {
+  background: rgba(255, 60, 60, 0.15) !important;
+  color: #ff5555 !important;
+}
+.resources {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.resources div {
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.resources span {
+  display: block;
+  font-weight: bold;
+  color: #ffd166;
+}
+.leaderboards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.board {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.board h3 {
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  color: #ffd166;
+}
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  padding: 3px 0;
+}
+
+.top-row span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-row strong {
+   color: #00ff88;
+}
+#serverSelect {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 8px;
+
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+
+  color: rgb(255, 255, 255);
+  padding: 10px 12px;
+
+  border-radius: 10px;
+  outline: none;
+
+  font-size: 13px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+#serverSelect:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.28);
+}
+
+#serverSelect:focus {
+  border-color: #00ff88;
+  box-shadow: 0 0 12px rgba(0,255,136,0.35);
+}
+
+#serverSelect option {
+  background: #11161d;
+  color: white;
+}
+#serverSelect {
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.credits {
+  margin-top: 10px;
+  padding-top: 8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  font-size: 9px;
+  font-weight: bold;
+
+  color: rgba(255,255,255,0.45);
+
+  letter-spacing: 1px;
+  text-transform: uppercase;
+
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.credit-logo {
+  width: 32px;
+  height: 32px;
+
+  object-fit: contain;
+  border-radius: 50%;
+}
+.top-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+#compactBtn,
+#closeBtn {
+  -webkit-app-region: no-drag;
+
+  background: rgba(255,255,255,0.1);
+  border: none;
+
+  color: white;
+
+  border-radius: 50%;
+
+  width: 22px;
+  height: 22px;
+
+  cursor: pointer;
+}
+.top-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,179 @@
+<!--
+======================================================
+
+████████╗ ██████╗ ███╗   ██╗████████╗ ██████╗ ███╗   ██╗
+╚══██╔══╝██╔═══██╗████╗  ██║╚══██╔══╝██╔═══██╗████╗  ██║
+   ██║   ██║   ██║██╔██╗ ██║   ██║   ██║   ██║██╔██╗ ██║
+   ██║   ██║   ██║██║╚██╗██║   ██║   ██║   ██║██║╚██╗██║
+   ██║   ╚██████╔╝██║ ╚████║   ██║   ╚██████╔╝██║ ╚████║
+   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
+
+            ██████╗ █████╗ ██████╗  ██████╗ ████████╗████████╗███████╗
+           ██╔════╝██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝╚══██╔══╝██╔════╝
+           ██║     ███████║██████╔╝██║   ██║   ██║      ██║   █████╗
+           ██║     ██╔══██║██╔══██╗██║   ██║   ██║      ██║   ██╔══╝
+           ╚██████╗██║  ██║██║  ██║╚██████╔╝   ██║      ██║   ███████╗
+            ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝      ╚═╝   ╚══════╝
+
+HLL LIVE STATS OVERLAY
+CREATED BY [CHM3] TONTONCAROTTE
+
+© 2026 TONTONCAROTTE - ALL RIGHTS RESERVED
+
+FAN MADE PROJECT
+NOT AFFILIATED WITH TEAM17 OR HELL LET LOOSE
+
+======================================================
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>HLL stats fait par TONTONCAROTTE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="widget">
+  <div class="drag-zone">
+    <div class="title">HLL LIVE STATS BY TONTONCAROTTE</div>
+      <div class="top-buttons">
+       <div class="shortcut-group">
+  <span class="shortcut-text">F6</span>
+  <button id="tankBtn">🛡</button>
+</div>
+    <span class="shortcut-info"
+        title="F7 : ouvrir/fermer le kill feed">
+    F7
+  </span>
+
+  <button id="feedBtn"
+          title="F7 : ouvrir/fermer le kill feed">
+    ☠
+  </button>
+   <span class="shortcut-info" title="F8 : verrouiller/déverrouiller la souris">
+  F8
+</span>
+
+<button id="mouseToggleBtn" class="top-btn" title="F8 : verrouiller/déverrouiller la souris">
+  🖱️
+</button>
+  <button id="compactBtn">—</button>
+  <button id="closeBtn">×</button>
+ 
+</div>
+  </div>
+<select id="serverSelect">
+  <option value="serv1">7eCIE1</option>
+  <option value="serv2" selected>7eCIE2</option>
+  <option value="serv3">7eCIE3</option>
+  <option value="serv4">7eCIE4</option>
+  <option value="serv5">F&CO</option>
+  <option value="serv6">CFr</option>
+</select>
+<div class="player-config">
+
+  <input
+    type="text"
+    id="playerNameInput"
+    placeholder="Ton pseudo HLL"
+    maxlength="32"
+  >
+
+  <button id="savePlayerName">
+    💾
+  </button>
+
+</div>
+<div class="player-row">
+
+  <div class="player-left">
+
+    <img id="myFactionLogo"
+         class="my-faction-logo"
+         src="assets/us.png">
+
+    <div class="player" id="playerName">
+      Chargement...
+    </div>
+
+  </div>
+
+ <div class="match-score">
+    <div class="score-line">
+    <img id="alliedLogo" class="team-logo" src="assets/us.png">
+    <span id="alliedScore">0</span>
+    <span class="score-separator">:</span>
+    <span id="axisScore">0</span>
+    <img id="axisLogo" class="team-logo" src="assets/ger.png">
+  </div>
+</div>
+</div>
+  <div class="stats">
+  <div>K <span id="kills">0</span></div>
+  <div>D <span id="deaths">0</span></div>
+  <div>K/D <span id="kd">0.00</span></div>
+  <div>STREAK <span id="streak">0</span></div>
+  <div>K/MIN <span id="kpm">0.00</span></div>
+  <div>D/MIN <span id="dpm">0.00</span></div>
+</div>
+
+<div class="resources">
+  <div>Combat <span id="combat">0</span></div>
+  <div>Offense <span id="offense">0</span></div>
+  <div>Defense <span id="defense">0</span></div>
+  <div>Support <span id="support">0</span></div>
+</div>
+
+   <div class="leaderboards">
+  <div class="board">
+    <h3>🏆 TOP KILLS</h3>
+    <div id="topKills"></div>
+  </div>
+
+  <div class="board">
+    <h3>⚡ TOP KPM</h3>
+    <div id="topKpm"></div>
+  </div>
+
+  <div class="board">
+    <h3>🎯 TOP K/D</h3>
+    <div id="topKd"></div>
+  </div>
+
+  <div class="board">
+    <h3>🔥 TOP STREAK</h3>
+    <div id="topStreak"></div>
+  </div>
+
+  <div class="board">
+    <h3>⏱ LONGUE VIE</h3>
+    <div id="topLife"></div>
+  </div>
+   <div class="board">
+    <h3>⚠️ TOP TK</h3>
+    <div id="topTk"></div>
+  </div>
+</div>
+<div id="tankPanel" class="hidden">
+  <h3>🛡 Tank crew</h3>
+
+  <input id="tankName1" placeholder="Gunner">
+  <input id="tankName2" placeholder="Driver">
+  <input id="tankName3" placeholder="Spotter">
+
+  <button id="saveTankCrew">Valider</button>
+
+  <div>Kills équipage : <span id="tankCrewKills">0</span></div>
+</div>
+<div class="credits">
+  <img src="assets/chm3.png" class="credit-logo">
+  <span>FAIT PAR [CHM3] TONTONCAROTTE V1.0.0.0</span>
+</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+
+
+</html>
