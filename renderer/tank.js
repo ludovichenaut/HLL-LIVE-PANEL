@@ -1,75 +1,67 @@
 // ======================================================
-//   ████████╗ ██████╗ ███╗   ██╗████████╗ ██████╗ ███╗   ██╗
-//   ╚══██╔══╝██╔═══██╗████╗  ██║╚══██╔══╝██╔═══██╗████╗  ██║
-//      ██║   ██║   ██║██╔██╗ ██║   ██║   ██║   ██║██╔██╗ ██║
-//      ██║   ██║   ██║██║╚██╗██║   ██║   ██║   ██║██║╚██╗██║
-//      ██║   ╚██████╔╝██║ ╚████║   ██║   ╚██████╔╝██║ ╚████║
-//      ╚═╝    ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
-//
-//              ██████╗ █████╗ ██████╗  ██████╗ ████████╗████████╗███████╗
-//             ██╔════╝██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝╚══██╔══╝██╔════╝
-//             ██║     ███████║██████╔╝██║   ██║   ██║      ██║   █████╗
-//             ██║     ██╔══██║██╔══██╗██║   ██║   ██║      ██║   ██╔══╝
-//             ╚██████╗██║  ██║██║  ██║╚██████╔╝   ██║      ██║   ███████╗
-//              ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝      ╚═╝   ╚══════╝
-//
 //   HLL LIVE STATS OVERLAY
 //   CREATED BY [CHM3] TONTONCAROTTE
 //   FAN MADE PROJECT - NOT AFFILIATED WITH TEAM17
 //
-//© 2026 TONTONCAROTTE - ALL RIGHTS RESERVED
+//   © 2026 TONTONCAROTTE - ALL RIGHTS RESERVED
 // ======================================================
+
 const { ipcRenderer } = require("electron");
+
+// ===============================
+// ELEMENTS
+// ===============================
 
 const closeTank = document.getElementById("closeTank");
 const saveCrew = document.getElementById("saveCrew");
+const crewList = document.getElementById("crewList");
+const tankFeed = document.getElementById("tankFeed");
+const tankKills = document.getElementById("tankKills");
 
-let tankCrew = JSON.parse(localStorage.getItem("tankCrew") || "[]");
+// ===============================
+// VARIABLES
+// ===============================
+
+let tankCrew = JSON.parse(
+  localStorage.getItem("tankCrew") || "[]"
+);
+
 let feedHistory = [];
+
+// ===============================
+// OPACITY GLOBAL
+// ===============================
+
+ipcRenderer.on("overlay-opacity-apply", (event, opacity) => {
+  document.documentElement.style.setProperty(
+    "--overlay-opacity",
+    opacity
+  );
+});
 
 // ===============================
 // CLOSE
 // ===============================
 
-closeTank.addEventListener("click", () => {
-  window.close();
-});
-
-// ===============================
-// CHARGER CREW SAUVEGARDÉE
-// ===============================
-
-if (tankCrew.length) {
-  for (let i = 1; i <= 6; i++) {
-    const input = document.getElementById(`tankName${i}`);
-    if (input) input.value = tankCrew[i - 1] || "";
-  }
-
-  ipcRenderer.send("tank-crew-change", {
-    crew: tankCrew
+if (closeTank) {
+  closeTank.addEventListener("click", () => {
+    window.close();
   });
 }
 
 // ===============================
-// SAUVEGARDER CREW
+// LOAD SAVED CREW
 // ===============================
 
-saveCrew.addEventListener("click", () => {
-  tankCrew = [
-    document.getElementById("tankName1")?.value,
-    document.getElementById("tankName2")?.value,
-    document.getElementById("tankName3")?.value,
-    document.getElementById("tankName4")?.value,
-    document.getElementById("tankName5")?.value,
-    document.getElementById("tankName6")?.value
-  ]
-    .map(v => String(v || "").trim().toLowerCase())
-    .filter(Boolean);
+function loadSavedCrew() {
+  if (!tankCrew.length) return;
 
-  localStorage.setItem("tankCrew", JSON.stringify(tankCrew));
-
-  feedHistory = [];
-  renderFeed();
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`tankName${i}`);
+    if (input) {
+      input.value = tankCrew[i - 1] || "";
+    }
+  }
 
   ipcRenderer.send("tank-crew-change", {
     crew: tankCrew
@@ -78,28 +70,113 @@ saveCrew.addEventListener("click", () => {
   renderCrewList(
     tankCrew.map(name => ({
       name,
-      kills: 0
+      kills: 0,
+      deaths: 0
     }))
   );
-
-  document.getElementById("tankKills").textContent = "0";
-});
+}
 
 // ===============================
-// UPDATE TANK
+// SAVE CREW
+// ===============================
+
+if (saveCrew) {
+  saveCrew.addEventListener("click", () => {
+    tankCrew = [];
+
+    for (let i = 1; i <= 6; i++) {
+      const value = document
+        .getElementById(`tankName${i}`)
+        ?.value
+        ?.trim();
+
+      if (value) {
+        tankCrew.push(value.toLowerCase());
+      }
+    }
+
+    localStorage.setItem(
+      "tankCrew",
+      JSON.stringify(tankCrew)
+    );
+
+    feedHistory = [];
+    renderFeed();
+
+    ipcRenderer.send("tank-crew-change", {
+      crew: tankCrew
+    });
+
+    renderCrewList(
+      tankCrew.map(name => ({
+        name,
+        kills: 0,
+        deaths: 0
+      }))
+    );
+
+    if (tankKills) {
+      tankKills.textContent = "0";
+    }
+  });
+}
+/// ===============================
+// DELETE CREW
+// ===============================
+
+const clearCrew = document.getElementById("clearCrew");
+
+if (clearCrew) {
+  clearCrew.addEventListener("click", () => {
+
+    tankCrew = [];
+
+    localStorage.removeItem("tankCrew");
+
+    for (let i = 1; i <= 6; i++) {
+      const input = document.getElementById(`tankName${i}`);
+
+      if (input) {
+        input.value = "";
+      }
+    }
+
+    ipcRenderer.send("tank-crew-change", {
+      crew: []
+    });
+
+    renderCrewList([]);
+
+    if (tankKills) {
+      tankKills.textContent = "0";
+    }
+  });
+}
+// ===============================
+// UPDATE CREW DATA
 // ===============================
 
 ipcRenderer.on("tank-update", (event, data) => {
-  const kills = Number(data.kills || 0);
-  document.getElementById("tankKills").textContent = kills;
+  const kills = Number(data?.kills || 0);
 
-  if (data.crew?.length) {
-    renderCrewList(data.crew);
+  if (tankKills) {
+    tankKills.textContent = kills;
   }
+
+  const crewData =
+    data?.crew?.length
+      ? data.crew
+      : tankCrew.map(name => ({
+          name,
+          kills: 0,
+          deaths: 0
+        }));
+
+  renderCrewList(crewData);
 });
 
 // ===============================
-// FEED TANK
+// FEED EVENTS
 // ===============================
 
 ipcRenderer.on("tank-feed-event", (event, data) => {
@@ -109,26 +186,47 @@ ipcRenderer.on("tank-feed-event", (event, data) => {
 });
 
 // ===============================
-// RENDER CREW
+// RENDER CREW TABLE
 // ===============================
 
 function renderCrewList(crew = []) {
-  const crewList = document.getElementById("crewList");
   if (!crewList) return;
 
-  crewList.innerHTML = "";
+  crewList.innerHTML = `
+    <table class="crew-table-ui">
+      <thead>
+        <tr>
+          <th>Soldat</th>
+          <th>K</th>
+          <th>D</th>
+          <th>K/D</th>
+        </tr>
+      </thead>
 
-  for (let i = 0; i < 6; i++) {
-    const player = crew[i];
+      <tbody>
+        ${Array.from({ length: 6 }).map((_, i) => {
+          const player = crew[i];
 
-    const div = document.createElement("div");
-    div.innerHTML = `
-      🪖 Soldat ${i + 1} : ${player?.name || "---"}
-      <strong>${player?.kills || 0}</strong>
-    `;
+          const kills = Number(player?.kills || 0);
+          const deaths = Number(player?.deaths || 0);
 
-    crewList.appendChild(div);
-  }
+          const kd =
+            deaths > 0
+              ? (kills / deaths).toFixed(2)
+              : kills.toFixed(2);
+
+          return `
+            <tr>
+              <td>${i + 1}. ${player?.name || "---"}</td>
+              <td>${kills}</td>
+              <td>${deaths}</td>
+              <td>${kd}</td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+  `;
 }
 
 // ===============================
@@ -136,7 +234,6 @@ function renderCrewList(crew = []) {
 // ===============================
 
 function renderFeed() {
-  const tankFeed = document.getElementById("tankFeed");
   if (!tankFeed) return;
 
   tankFeed.innerHTML = "";
@@ -149,17 +246,30 @@ function renderFeed() {
 
   feedHistory.forEach(item => {
     const row = document.createElement("div");
-    row.className = `feed-row ${item.type || "kill"}`;
-    row.textContent = item.text;
+
+    row.className =
+      `feed-row ${item.type || "kill"}`;
+
+    row.textContent =
+      item.text || "";
+
     tankFeed.appendChild(row);
   });
 }
 
+// ===============================
+// START
+// ===============================
+
+loadSavedCrew();
+
 renderCrewList(
   tankCrew.map(name => ({
     name,
-    kills: 0
+    kills: 0,
+    deaths: 0
   }))
 );
-
-renderFeed();
+console.log("tank.js chargé");
+console.log("crewList =", crewList);
+console.log("tankCrew =", tankCrew);

@@ -22,6 +22,18 @@
 
 const { ipcRenderer } = require("electron");
 
+const quitBtn =
+  document.getElementById("quitBtn");
+
+if (quitBtn) {
+
+  quitBtn.addEventListener("click", () => {
+
+    ipcRenderer.send("quit-app");
+
+  });
+
+}
 // ===============================
 // VARIABLES
 // ===============================
@@ -29,39 +41,70 @@ const { ipcRenderer } = require("electron");
 let currentServerKey = "serv2";
 let currentGameId = null;
 let previousPlayer = null;
+let matchStart = null;
+let baseline = {};
 let currentMapData = null;
+let autoDetectEnabled = true;
+let missingCount = 0;
+let manualServerMode = false;
+let playerIsOnline = false;
+// ONLINE / OFFLINE SYSTEM
+const playerActivity = {};
 
-let myPlayerName =
-  localStorage.getItem("myPlayerName") || "";
+let myPlayerName = localStorage.getItem("myPlayerName") || "";
+const startScreen = document.getElementById("startScreen");
+const startPlayerName = document.getElementById("startPlayerName");
+const startBtn = document.getElementById("startBtn");
+const appScale = document.getElementById("appScale");
+const widget = document.getElementById("widget");
 
-const playerNameInput =
-  document.getElementById("playerNameInput");
+if (appScale) {
+  appScale.style.display = "none";
+}
 
-const savePlayerNameBtn =
-  document.getElementById("savePlayerName");
+if (myPlayerName && startPlayerName) {
+  startPlayerName.value = myPlayerName;
+}
 
-playerNameInput.value = myPlayerName;
+if (startBtn) {
+  startBtn.addEventListener("click", async () => {
 
-ipcRenderer.send(
-  "my-player-name-change",
-  myPlayerName
-);
+    myPlayerName = startPlayerName.value.trim();
 
-savePlayerNameBtn.addEventListener("click", () => {
+    if (!myPlayerName) return;
 
-  myPlayerName =
-    playerNameInput.value.trim();
+    localStorage.setItem("myPlayerName", myPlayerName);
 
-  localStorage.setItem(
-    "myPlayerName",
-    myPlayerName
-  );
+    startOverlay();
+  });
+}
+
+async function startOverlay() {
+
+  if (startScreen) {
+    startScreen.style.display = "none";
+  }
+
+if (appScale) {
+  appScale.style.display = "";
+}
 
   ipcRenderer.send(
     "my-player-name-change",
     myPlayerName
   );
+ipcRenderer.send("set-main-size", {
+  width: 450,
+  height: 630
 });
+  resetDisplayedStats("Recherche serveur...");
+
+  await autoDetectServer();
+  await loadPublicInfo();
+  await loadFullStats();
+  await loadKillFeedStats();
+}
+
 let lastResources = {
   combat: 0,
   offense: 0,
@@ -73,7 +116,27 @@ let compactMode = false;
 let mouseLocked = false;
 let feedOpened = false;
 let tankCrew = [];
+// =====================================
+// DONATION
+// =====================================
 
+const donateBtn =
+  document.getElementById("donateBtn");
+
+if (donateBtn) {
+
+  donateBtn.addEventListener("click", () => {
+
+    const { shell } =
+      require("electron");
+
+    shell.openExternal(
+      "https://fr.tipeee.com/tontoncarotte"
+    );
+
+  });
+
+}
 // ===============================
 // ELEMENTS HTML
 // ===============================
@@ -83,8 +146,54 @@ const mouseToggleBtn = document.getElementById("mouseToggleBtn");
 const tankBtn = document.getElementById("tankBtn");
 const closeBtn = document.getElementById("closeBtn");
 const compactBtn = document.getElementById("compactBtn");
-const serverSelect = document.getElementById("serverSelect");
+// ===============================
+// Opacity
+// ===============================
+const opacitySlider = document.getElementById("opacitySlider");
 
+const savedOpacity =
+  localStorage.getItem("overlayOpacity") || "0.82";
+
+if (opacitySlider) {
+  opacitySlider.value = savedOpacity;
+
+  updateOverlayOpacity(savedOpacity);
+
+  ipcRenderer.send("overlay-opacity-change", savedOpacity);
+
+  opacitySlider.addEventListener("input", () => {
+    const value = opacitySlider.value;
+
+    localStorage.setItem("overlayOpacity", value);
+
+    updateOverlayOpacity(value);
+
+    ipcRenderer.send("overlay-opacity-change", value);
+  });
+}
+
+function updateOverlayOpacity(opacity) {
+  document.documentElement.style.setProperty(
+    "--overlay-opacity",
+    opacity
+  );
+}
+// ===============================
+// resize 
+// ===============================
+function updateResponsiveLayout() {
+  const widget = document.getElementById("widget");
+  if (!widget) return;
+
+  if (window.innerWidth < 360) {
+    widget.classList.add("compact-layout");
+  } else {
+    widget.classList.remove("compact-layout");
+  }
+}
+
+window.addEventListener("resize", updateResponsiveLayout);
+updateResponsiveLayout();
 // ===============================
 // BOUTONS
 // ===============================
@@ -98,22 +207,29 @@ closeBtn.addEventListener("click", () => {
 });
 
 compactBtn.addEventListener("click", () => {
+
   compactMode = !compactMode;
 
-  const widget = document.getElementById("widget");
-  const leaderboards = document.querySelector(".leaderboards");
-  const credits = document.querySelector(".credits");
+  const widget =
+    document.getElementById("widget");
 
   if (compactMode) {
-    leaderboards.style.display = "none";
-    credits.style.display = "";
+
     widget.classList.add("mini");
-    ipcRenderer.send("set-compact-mode", true);
+
+    ipcRenderer.send(
+      "set-compact-mode",
+      true
+    );
+
   } else {
-    leaderboards.style.display = "";
-    credits.style.display = "";
+
     widget.classList.remove("mini");
-    ipcRenderer.send("set-compact-mode", false);
+
+    ipcRenderer.send(
+      "set-compact-mode",
+      false
+    );
   }
 });
 
@@ -197,7 +313,7 @@ updateFeedButton();
 
 async function loadPublicInfo() {
   try {
-    const serverKey = serverSelect.value;
+    const serverKey = currentServerKey;
     currentServerKey = serverKey;
 
     const publicInfo = await ipcRenderer.invoke("get-public-info", serverKey);
@@ -207,11 +323,8 @@ async function loadPublicInfo() {
 
     const score = publicInfo?.result?.score;
 
-    document.getElementById("alliedScore").textContent =
-      score?.allied ?? 0;
-
-    document.getElementById("axisScore").textContent =
-      score?.axis ?? 0;
+    document.getElementById("alliedScore").textContent = score?.allied ?? 0;
+    document.getElementById("axisScore").textContent = score?.axis ?? 0;
 
     document.getElementById("alliedLogo").src =
       `assets/${mapData?.allies?.name || "us"}.png`;
@@ -222,44 +335,124 @@ async function loadPublicInfo() {
     const mapId = publicInfo?.result?.current_map?.map?.id;
     const mapStart = publicInfo?.result?.current_map?.start;
 
-    const gameId =
-      mapId && mapStart
-        ? `${mapId}_${mapStart}`
-        : null;
+    const gameId = mapId && mapStart ? `${mapId}_${mapStart}` : null;
 
     if (gameId && currentGameId !== gameId) {
       currentGameId = gameId;
       previousPlayer = null;
 
-      lastResources = {
-        combat: 0,
-        offense: 0,
-        defense: 0,
-        support: 0
-      };
-
       ipcRenderer.send("feed-clear", {
         serverKey: currentServerKey
       });
 
-      resetDisplayedStats("Nouvelle carte...");
+      console.log("🗺️ Nouvelle carte détectée");
     }
 
   } catch (e) {
     console.error("Erreur public info :", e);
   }
 }
+async function autoDetectServer() {
 
+  if (!myPlayerName) return;
+
+  if (!autoDetectEnabled) {
+    return;
+  }
+
+  try {
+
+    const result = await ipcRenderer.invoke(
+      "find-my-server",
+      myPlayerName
+    );
+
+    if (!result?.found) {
+      return;
+    }
+
+    currentServerKey = result.serverKey;
+    updateServerDisplay(currentServerKey);
+    
+    ipcRenderer.send("feed-server-change", {
+      serverKey: currentServerKey
+    });
+
+    currentGameId = null;
+    previousPlayer = null;
+
+    autoDetectEnabled = false;
+    manualServerMode = false;
+
+    console.log("🟢 Serveur détecté :", currentServerKey);
+
+    await loadPublicInfo();
+    await loadFullStats();
+    await loadKillFeedStats();
+
+  } catch (e) {
+    console.error("Erreur auto detect server", e);
+  }
+}
+
+// ===============================
+// ServerDisplay
+// ===============================
+function updateServerDisplay(serverKey) {
+
+  const names = {
+    serv1: "7eCIE1",
+    serv2: "7eCIE2",
+    serv3: "7eCIE3",
+    serv4: "7eCIE4",
+    serv5: "F&CO",
+    serv6: "CFr",
+    serv7: "Circle1",
+    serv8: "Circle2",
+    serv9: "Circle3",
+    serv10:"Circle4",
+    serv11:"Circle5",
+    serv12:"Circle6",
+  };
+
+  const el = document.getElementById("serverDisplay");
+
+  if (!el) return;
+
+  el.textContent =
+    `Vous êtes sur ${names[serverKey] || serverKey}`;
+}
+function updateServerDisplay(serverKey) {
+  const names = {
+    serv1: "7eCIE1",
+    serv2: "7eCIE2",
+    serv3: "7eCIE3",
+    serv4: "7eCIE4",
+    serv5: "F&CO",
+    serv6: "CFr",
+    serv7: "Circle1",
+    serv8: "Circle2",
+    serv9: "Circle3",
+    serv10:"Circle4",
+    serv11:"Circle5",
+    serv12:"Circle6"
+  };
+
+  const el = document.getElementById("serverDisplay");
+  if (!el) return;
+
+  el.textContent = `Vous êtes sur ${names[serverKey] || serverKey}`;
+}
 // ===============================
 // FULL STATS
 // ===============================
 
 async function loadFullStats() {
   try {
-    const serverKey = serverSelect.value;
-    currentServerKey = serverKey;
+    const serverKey = currentServerKey;
+    updateServerDisplay(serverKey);
 
-    const json = await ipcRenderer.invoke("get-hll-stats", serverKey);
+    const json = await ipcRenderer.invoke("get-live-scoreboard", serverKey);
 
     const stats =
       json?.result?.stats ||
@@ -267,18 +460,73 @@ async function loadFullStats() {
       json?.scoreboard?.result?.stats;
 
     if (!Array.isArray(stats)) {
-      console.warn("Stats API invalides");
+      console.warn("Scoreboard API invalide");
       return;
     }
 
-    updateLeaderboards(stats);
-    updateTankCrew(stats);
+    const onlinePlayer = findCurrentPlayer(stats);
 
-    const player = findCurrentPlayer(stats);
-    if (!player) return;
+    if (!onlinePlayer) {
+      playerIsOnline = false;
+
+      resetDisplayedStats("Joueur introuvable", false);
+      previousPlayer = null;
+
+      setTimeout(async () => {
+        autoDetectEnabled = true;
+        manualServerMode = false;
+
+        console.log("🔍 Relance recherche auto...");
+
+        await autoDetectServer();
+        await loadPublicInfo();
+        await loadFullStats();
+        await loadKillFeedStats();
+
+      }, 30000);
+
+      return;
+    }
+
+    playerIsOnline = true;
+
+    const fullJson = await ipcRenderer.invoke("get-hll-stats", serverKey);
+
+    const fullStats =
+      fullJson?.result?.stats ||
+      fullJson?.stats ||
+      fullJson?.scoreboard?.result?.stats;
+
+    if (Array.isArray(fullStats)) {
+      updateLeaderboards(fullStats);
+      updateTankCrew(fullStats);
+    }
+
+    const player = Array.isArray(fullStats)
+      ? findCurrentPlayer(fullStats)
+      : null;
+
+    if (!player) {
+      updateStats({
+        player: onlinePlayer.player,
+        kills: 0,
+        deaths: 0,
+        kills_per_minute: 0,
+        deaths_per_minute: 0,
+        kills_streak: 0,
+        longest_life_secs: 0,
+        teamkills: 0,
+        combat: 0,
+        offense: 0,
+        defense: 0,
+        support: 0
+      }, true);
+
+      return;
+    }
 
     updatePlayerFactionLogo(player, currentMapData);
-    updateStats(player);
+    updateStats(player, true);
 
   } catch (e) {
     console.error("Erreur loadFullStats :", e);
@@ -291,7 +539,13 @@ async function loadFullStats() {
 
 async function loadKillFeedStats() {
   try {
-    const serverKey = serverSelect.value;
+
+    if (!playerIsOnline) {
+      previousPlayer = null;
+      return;
+    }
+
+    const serverKey = currentServerKey;
     currentServerKey = serverKey;
 
     const json = await ipcRenderer.invoke("get-hll-stats", serverKey);
@@ -304,20 +558,25 @@ async function loadKillFeedStats() {
     if (!Array.isArray(stats)) return;
 
     const player = findCurrentPlayer(stats);
-    if (!player) return;
+
+    if (!player) {
+      previousPlayer = null;
+      return;
+    }
 
     if (previousPlayer) {
       detectLiveEvent(player);
     }
 
-    updateStats(player);
+    updatePlayerFactionLogo(player, currentMapData);
+    updateStats(player, true);
+
     previousPlayer = structuredClone(player);
 
   } catch (e) {
     console.error("Erreur loadKillFeedStats :", e);
   }
 }
-
 // ===============================
 // JOUEUR
 // ===============================
@@ -325,12 +584,14 @@ async function loadKillFeedStats() {
 function findCurrentPlayer(stats) {
   const targetPlayer = normalize(myPlayerName);
 
-  if (!targetPlayer) return null;
+  if (!targetPlayer || targetPlayer.length < 6) {
+    return null;
+  }
 
   return stats.find(p => {
     const name = normalize(p.player);
     return name.includes(targetPlayer);
-  });
+  }) || null;
 }
 
 function updatePlayerFactionLogo(player, mapData) {
@@ -351,7 +612,8 @@ function updatePlayerFactionLogo(player, mapData) {
 // UPDATE STATS
 // ===============================
 
-function resetDisplayedStats(playerName = "Chargement...") {
+function resetDisplayedStats(playerName = "Chargement...", isOnline = false) {
+
   lastResources = {
     combat: 0,
     offense: 0,
@@ -372,11 +634,22 @@ function resetDisplayedStats(playerName = "Chargement...") {
     offense: 0,
     defense: 0,
     support: 0
-  });
+  }, isOnline);
 }
 
-function updateStats(player) {
+function updateStats(player, isOnline = playerIsOnline) {
+  playerIsOnline = isOnline;
   const p = normalizePlayer(player);
+
+  const statusWrap = document.querySelector(".player-status");
+  const statusEl = document.getElementById("onlineStatus");
+
+  if (statusWrap && statusEl) {
+    statusEl.textContent = isOnline ? "En ligne" : "Hors ligne";
+
+    statusWrap.classList.remove("online", "offline");
+    statusWrap.classList.add(isOnline ? "online" : "offline");
+  }
 
   document.getElementById("playerName").textContent = p.player;
   document.getElementById("kills").textContent = p.kills;
@@ -532,6 +805,7 @@ function updateTankCrew(stats) {
 // ===============================
 
 function updateLeaderboards(stats) {
+  console.log("TOP 5 API :", stats.slice(0, 5))
   const players = stats
     .filter(p => p.player)
     .map(normalizePlayer);
@@ -609,7 +883,6 @@ function formatTime(seconds) {
 
   return `${min}m${sec.toString().padStart(2, "0")}`;
 }
-
 function normalize(str) {
   return String(str || "")
     .toLowerCase()
@@ -617,35 +890,73 @@ function normalize(str) {
     .replace(/\s+/g, " ")
     .trim();
 }
-
-// ===============================
-// CHANGEMENT SERVEUR
-// ===============================
-
-serverSelect.addEventListener("change", () => {
-  currentServerKey = serverSelect.value;
-
-  ipcRenderer.send("feed-server-change", {
-    serverKey: currentServerKey
-  });
-
-  currentGameId = null;
-  previousPlayer = null;
-
-  resetDisplayedStats("Chargement...");
-
-  loadPublicInfo();
-  loadFullStats();
-});
-
 // ===============================
 // START
 // ===============================
 
-loadPublicInfo();
-loadFullStats();
-loadKillFeedStats();
-
 setInterval(loadKillFeedStats, 5000);
 setInterval(loadPublicInfo, 30000);
 setInterval(loadFullStats, 20000);
+serverWatcher();
+async function serverWatcher() {
+
+  if (manualServerMode) {
+  console.log("⏸️ Mode manuel actif, pas de scan auto");
+  setTimeout(serverWatcher, 30000);
+  return;
+}
+
+  try {
+
+    const json =
+      await ipcRenderer.invoke(
+        "get-live-scoreboard",
+        currentServerKey
+      );
+
+    const stats =
+      json?.result?.stats ||
+      json?.stats ||
+      json?.scoreboard?.result?.stats ||
+      [];
+
+   const targetPlayer = normalize(myPlayerName);
+
+const stillHere =
+  Array.isArray(stats) &&
+  stats.some(p => {
+    const name = normalize(p.player);
+
+   return (
+  targetPlayer.length >= 6 &&
+  name.includes(targetPlayer)
+);
+  });
+
+    if (!stillHere) {
+
+      console.log("🔍 Joueur absent du scoreboard -> scan rapide");
+
+      autoDetectEnabled = true;
+
+      const end = Date.now() + 30000;
+
+      while (
+        autoDetectEnabled &&
+        Date.now() < end
+      ) {
+
+        await autoDetectServer();
+
+        await new Promise(resolve =>
+          setTimeout(resolve, 3000)
+        );
+      }
+    }
+
+  } catch (e) {
+    console.error("Erreur serverWatcher :", e);
+  }
+
+  setTimeout(serverWatcher, 30000);
+}

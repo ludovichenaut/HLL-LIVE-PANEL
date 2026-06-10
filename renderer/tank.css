@@ -1,47 +1,36 @@
-/*
-======================================================
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  user-select: none;
+}
 
-████████╗ ██████╗ ███╗   ██╗████████╗ ██████╗ ███╗   ██╗
-╚══██╔══╝██╔═══██╗████╗  ██║╚══██╔══╝██╔═══██╗████╗  ██║
-   ██║   ██║   ██║██╔██╗ ██║   ██║   ██║   ██║██╔██╗ ██║
-   ██║   ██║   ██║██║╚██╗██║   ██║   ██║   ██║██║╚██╗██║
-   ██║   ╚██████╔╝██║ ╚████║   ██║   ╚██████╔╝██║ ╚████║
-   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
+:root {
+  --overlay-opacity: 0.82;
+}
 
-            ██████╗ █████╗ ██████╗  ██████╗ ████████╗████████╗███████╗
-           ██╔════╝██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝╚══██╔══╝██╔════╝
-           ██║     ███████║██████╔╝██║   ██║   ██║      ██║   █████╗
-           ██║     ██╔══██║██╔══██╗██║   ██║   ██║      ██║   ██╔══╝
-           ╚██████╗██║  ██║██║  ██║╚██████╔╝   ██║      ██║   ███████╗
-            ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝      ╚═╝   ╚══════╝
-
-HLL LIVE STATS OVERLAY
-CREATED BY [CHM3] TONTONCAROTTE
-
-© 2026 TONTONCAROTTE - ALL RIGHTS RESERVED
-
-FAN MADE PROJECT
-NOT AFFILIATED WITH TEAM17 OR HELL LET LOOSE
-
-======================================================
-*/
+html,
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  width: 100%;
+  height: 100%;
   background: transparent;
   overflow: hidden;
   color: white;
 }
 
 #tankWidget {
-  width: 100%;
+  width: 100vw;
   height: 100vh;
-  background: rgba(15, 18, 14, 0.88);
-  border: 1px solid rgba(180, 150, 80, 0.8);
-  border-radius: 10px;
-  box-sizing: border-box;
-  padding: 8px;
+  padding: 10px;
+
+  background: rgba(12, 15, 20, var(--overlay-opacity));
+  border: 1px solid rgba(255, 209, 102, 0.55);
+  border-radius: 14px;
+
+  overflow: hidden;
 }
+
+/* HEADER */
 
 .drag {
   -webkit-app-region: drag;
@@ -49,100 +38,179 @@ body {
 
 .tank-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  color: #f2c14e;
+  justify-content: space-between;
+
+  margin-bottom: 10px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 5px black);
+}
+
+.brand-title {
+  color: #ffd166;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.brand-subtitle {
+  color: rgba(255,255,255,0.55);
+  font-size: 9px;
   font-weight: bold;
-  font-size: 14px;
-  margin-bottom: 8px;
+  letter-spacing: 1.5px;
 }
 
 #closeTank {
   -webkit-app-region: no-drag;
+
+  width: 24px;
+  height: 24px;
+
   border: none;
-  background: rgba(120, 30, 30, 0.9);
+  border-radius: 50%;
+
+  background: rgba(120, 30, 30, 0.95);
   color: white;
-  font-size: 16px;
-  border-radius: 5px;
+
   cursor: pointer;
 }
 
-.tank-stats {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
-}
+/* FORM */
 
-.tank-stats div {
-  flex: 1;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  padding: 6px;
-}
-
-.tank-stats span {
-  display: block;
-  font-size: 10px;
-  opacity: 0.75;
-}
-
-.tank-stats strong {
-  font-size: 20px;
-}
-
-.crew-list {
-  font-size: 12px;
-  margin-bottom: 8px;
-  color: #ddd;
-}
-
-.tank-feed {
-  height: 130px;
-  overflow: hidden;
-  font-size: 12px;
-}
-
-.feed-row {
-  padding: 4px 6px;
-  margin-bottom: 4px;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.feed-row.kill {
-  color: #ffcf5a;
-}
-
-.feed-row.death {
-  color: #ff6b6b;
-}
-
-.empty {
-  color: white;
-  opacity: 0.7;
-  font-style: italic;}
-  .crew-form {
+.crew-form {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr auto;
-  gap: 5px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+
   margin-bottom: 8px;
 }
 
 .crew-form input {
+  height: 28px;
+  min-width: 0;
+
   background: rgba(0,0,0,0.45);
-  border: 1px solid rgba(180,150,80,0.6);
+  border: 1px solid rgba(255, 209, 102, 0.55);
+  border-radius: 6px;
+
   color: white;
-  border-radius: 5px;
-  padding: 5px;
-  font-size: 11px;
+  padding: 0 8px;
+
+  font-size: 12px;
+  outline: none;
 }
 
-.crew-form button {
-  background: rgba(45,66,55,0.95);
-  color: white;
+.crew-form input::placeholder {
+  color: rgba(255,255,255,0.45);
+}
+
+/* ACTIONS */
+
+.crew-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+
+  margin-bottom: 8px;
+}
+
+.crew-actions button {
+  height: 28px;
+
   border: none;
-  border-radius: 5px;
-  padding: 5px 8px;
+  border-radius: 6px;
+
+  color: white;
+  font-weight: bold;
   cursor: pointer;
+}
+
+#saveCrew {
+  background: rgba(45, 85, 55, 0.95);
+}
+
+#clearCrew {
+  background: rgba(120, 40, 40, 0.95);
+}
+
+/* TOTAL */
+
+.tank-total {
+  height: 42px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 8px;
+
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px;
+}
+
+.tank-total span {
+  font-size: 10px;
+  color: rgba(255,255,255,0.65);
+}
+
+.tank-total strong {
+  font-size: 22px;
+  color: white;
+}
+
+/* TABLE */
+
+#crewList {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.35);
+}
+
+.crew-table-ui {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  font-size: 12px;
+}
+
+.crew-table-ui thead {
+  background: rgba(255,255,255,0.08);
+}
+
+.crew-table-ui th {
+  color: #ffd166;
+  padding: 6px;
+  text-align: center;
+}
+
+.crew-table-ui td {
+  padding: 6px;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.crew-table-ui th:first-child,
+.crew-table-ui td:first-child {
+  width: 55%;
+  text-align: left;
+  padding-left: 10px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

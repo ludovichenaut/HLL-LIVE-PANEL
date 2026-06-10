@@ -1,67 +1,50 @@
-<!--
-======================================================
-
-████████╗ ██████╗ ███╗   ██╗████████╗ ██████╗ ███╗   ██╗
-╚══██╔══╝██╔═══██╗████╗  ██║╚══██╔══╝██╔═══██╗████╗  ██║
-   ██║   ██║   ██║██╔██╗ ██║   ██║   ██║   ██║██╔██╗ ██║
-   ██║   ██║   ██║██║╚██╗██║   ██║   ██║   ██║██║╚██╗██║
-   ██║   ╚██████╔╝██║ ╚████║   ██║   ╚██████╔╝██║ ╚████║
-   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
-
-            ██████╗ █████╗ ██████╗  ██████╗ ████████╗████████╗███████╗
-           ██╔════╝██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝╚══██╔══╝██╔════╝
-           ██║     ███████║██████╔╝██║   ██║   ██║      ██║   █████╗
-           ██║     ██╔══██║██╔══██╗██║   ██║   ██║      ██║   ██╔══╝
-           ╚██████╗██║  ██║██║  ██║╚██████╔╝   ██║      ██║   ███████╗
-            ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝      ╚═╝   ╚══════╝
-
-HLL LIVE STATS OVERLAY
-CREATED BY [CHM3] TONTONCAROTTE
-
-© 2026 TONTONCAROTTE - ALL RIGHTS RESERVED
-
-FAN MADE PROJECT
-NOT AFFILIATED WITH TEAM17 OR HELL LET LOOSE
-
-======================================================
--->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Tank Crew Feed</title>
+  <title>Infantry Crew</title>
   <link rel="stylesheet" href="tank.css">
 </head>
+
 <body>
 
 <div id="tankWidget">
+
   <div class="tank-header drag">
-    <span>🪖 INFANTERY CREW</span>
+    <div class="brand">
+      <img src="assets/infanterie.png" class="brand-logo">
+      <div>
+        <div class="brand-title">INFANTRY CREW</div>
+        <div class="brand-subtitle">BY TONTONCAROTTE</div>
+      </div>
+    </div>
+
     <button id="closeTank">×</button>
   </div>
 
- <div class="crew-form">
-  <input id="tankName1" placeholder="MOI">
-  <input id="tankName2" placeholder="ÉQUIPIER 2">
-  <input id="tankName3" placeholder="ÉQUIPIER 3">
-  <input id="tankName4" placeholder="ÉQUIPIER 4">
-  <input id="tankName5" placeholder="ÉQUIPIER 5">
-  <input id="tankName6" placeholder="ÉQUIPIER 6">
-  <button id="saveCrew">OK</button>
-</div>
-
-  <div class="tank-stats">
-    <div><span>KILLS TOTAL</span><strong id="tankKills">0</strong></div>
-      </div>
-
-  <div id="crewList" class="crew-list">Aucun équipage enregistré.</div>
-
-  <div id="tankFeed" class="tank-feed">
-    <div class="empty">En attente d’un kill équipage...</div>
+  <div class="crew-form">
+    <input id="tankName1" placeholder="MOI">
+    <input id="tankName2" placeholder="ÉQUIPIER 2">
+    <input id="tankName3" placeholder="ÉQUIPIER 3">
+    <input id="tankName4" placeholder="ÉQUIPIER 4">
+    <input id="tankName5" placeholder="ÉQUIPIER 5">
+    <input id="tankName6" placeholder="ÉQUIPIER 6">
   </div>
+
+  <div class="crew-actions">
+    <button id="saveCrew">VALIDER</button>
+    <button id="clearCrew">EFFACER</button>
+  </div>
+
+  <div class="tank-total">
+    <span>KILLS TOTAL</span>
+    <strong id="tankKills">0</strong>
+  </div>
+
+  <div id="crewList"></div>
+
 </div>
 
-<link rel="stylesheet" href="tank.css">
 <script src="tank.js"></script>
 </body>
 </html>

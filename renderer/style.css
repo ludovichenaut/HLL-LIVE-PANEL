@@ -1,4 +1,3 @@
-
 /*
 ======================================================
 
@@ -8,13 +7,6 @@
    ██║   ██║   ██║██║╚██╗██║   ██║   ██║   ██║██║╚██╗██║
    ██║   ╚██████╔╝██║ ╚████║   ██║   ╚██████╔╝██║ ╚████║
    ╚═╝    ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
-
-            ██████╗ █████╗ ██████╗  ██████╗ ████████╗████████╗███████╗
-           ██╔════╝██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝╚══██╔══╝██╔════╝
-           ██║     ███████║██████╔╝██║   ██║   ██║      ██║   █████╗
-           ██║     ██╔══██║██╔══██╗██║   ██║   ██║      ██║   ██╔══╝
-           ╚██████╗██║  ██║██║  ██║╚██████╔╝   ██║      ██║   ███████╗
-            ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝      ╚═╝   ╚══════╝
 
 HLL LIVE STATS OVERLAY
 CREATED BY [CHM3] TONTONCAROTTE
@@ -26,24 +18,130 @@ NOT AFFILIATED WITH TEAM17 OR HELL LET LOOSE
 
 ======================================================
 */
-*{
+
+/* ======================================================
+   GLOBAL
+====================================================== */
+
+* {
   box-sizing: border-box;
   font-family: Arial, sans-serif;
   user-select: none;
 }
 
+html,
 body {
+
   margin: 0;
-  background: transparent;
+  padding: 0;
+
+  width: fit-content;
+  height: fit-content;
+
   overflow: hidden;
+
+  background: transparent;
+}
+.start-screen {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0,0,0,0.75);
 }
 
-#widget {
-    width: 430px;
-  height: 610px;
-  transform-origin: top left;
+.start-box {
 
-  background: rgba(12, 15, 20, 0.82);
+  width: 380px;
+  padding: 25px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  background: rgba(12,15,20,0.95);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 18px;
+  text-align: center;
+}
+.startup-logo{
+  width:140px;
+  height:140px;
+  object-fit:contain;
+}
+
+.startup-title{
+  color:#ffd166;
+  margin:0;
+  font-size:22px;
+  text-align:center;
+}
+
+.startup-subtitle{
+  color:#aaa;
+  margin-bottom:20px;
+  letter-spacing:2px;
+}
+
+.donation-box{
+  margin-top:15px;
+  text-align:center;
+}
+
+.donation-text{
+  color:#ffd166;
+  margin-bottom:8px;
+}
+#quitBtn{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 28px;
+  height: 28px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(120,30,30,0.9);
+  color: white;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+#quitBtn:hover{
+  background: rgba(180,40,40,1);
+}
+#donateBtn{
+  width:100%;
+  height:40px;
+
+  border:none;
+  border-radius:8px;
+
+  background:#c0392b;
+  color:white;
+
+  font-weight:bold;
+  cursor:pointer;
+}
+/* ======================================================
+   MAIN WIDGET
+====================================================== */
+
+#widget {
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(12, 15, 20, 0.20);
   border: 1px solid rgba(255,255,255,0.18);
   border-radius: 16px;
 
@@ -53,177 +151,246 @@ body {
 
   overflow: hidden;
 }
-#widget.mini {
-  transform: scale(0.72);
+
+/* évite les débordements pendant resize */
+
+#widget * {
+  min-width: 0;
 }
+#widget.mini {
+  font-size: 11px;
+}
+
+#widget.mini .leaderboards {
+  display: none;
+}
+
+#widget.mini .credits {
+  display: none;
+}
+
+#widget.mini .player {
+  font-size: 18px;
+}
+
+#widget.mini .stats {
+  font-size: 11px;
+}
+#widget.compact-layout .title {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+#widget.compact-layout .player-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+#widget.compact-layout .match-score {
+  align-self: flex-start;
+}
+
+#widget.compact-layout .stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  font-size: 11px;
+}
+
+#widget.compact-layout .resources {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+#widget.compact-layout .leaderboards {
+  grid-template-columns: 1fr;
+}
+
+#widget.compact-layout .credits {
+  display: none;
+}
+/* ======================================================
+   Opacité
+====================================================== */
+:root {
+  --overlay-opacity: 0.82;
+}
+
+#widget,
+#feed,
+#tankWidget {
+  background: rgba(12, 15, 20, var(--overlay-opacity));
+}
+.opacity-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 6px;
+
+  font-size: 11px;
+  color: white;
+}
+
+#opacitySlider {
+  flex: 1;
+}
+/* ======================================================
+   DRAG ZONE
+====================================================== */
+
 .drag-zone {
   -webkit-app-region: drag;
+
+  height: 34px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  margin-bottom: 8px;
+}
+
+/* boutons interactifs */
+
+button,
+input,
+.top-buttons,
+.top-btn,
+select {
+  -webkit-app-region: no-drag;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.title {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #aaa;
 }
 
 .top-buttons {
-  position: relative;
-  z-index: 20;
-  pointer-events: auto;
-}
-
-.match-score {
-  position: relative;
-  z-index: 1;
-  pointer-events: none;
-}
-.score-line {
   display: flex;
   align-items: center;
   gap: 6px;
-
-  color: white;
-  font-weight: bold;
-  font-size: 22px;
 }
 
-.score-line span {
-  color: white !important;
-}
-.shortcut-info {
-  font-size: 10px;
-  color: rgba(255,255,255,0.65);
-  margin-right: 2px;
-  display: flex;
-  align-items: center;
-  user-select: none;
-}
-.hidden {
-  display: none !important;
-}
-
-#tankPanel {
-  margin-top: 10px;
-  padding: 10px;
-  background: rgba(0,0,0,0.55);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 10px;
-}
-.player-config{
-  display:flex;
-  gap:6px;
-  margin-top:8px;
-  margin-bottom:8px;
-}
-
-#playerNameInput{
-  flex:1;
-  height:34px;
-  border:none;
-  border-radius:8px;
-  padding:0 10px;
-  background:rgba(20,20,20,.75);
-  color:white;
-  font-size:14px;
-  outline:none;
-}
-
-#savePlayerName{
-  width:42px;
-  border:none;
-  border-radius:8px;
-  background:#2d4237;
-  color:white;
-  cursor:pointer;
-  font-size:16px;
-}
-#tankPanel input {
-  width: 100%;
-  margin: 4px 0;
-}
-.drag-zone button,
-#feedBtn,
-#mouseToggleBtn,
-#compactBtn,
-#closeBtn {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
-
-  background-image: none !important;
-
-  padding: 0 !important;
-
-  border-radius: 6px;
-
-  width: 28px;
-  height: 28px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-button::-moz-focus-inner {
-  border: 0;
-}
 .shortcut-group {
   display: flex;
   align-items: center;
   gap: 3px;
 }
 
-.shortcut-text {
+.shortcut-text,
+.shortcut-info {
   font-size: 10px;
-  color: #aaa;
+  color: rgba(255,255,255,0.65);
 }
 
-select {
-  -webkit-app-region: no-drag;
+/* ======================================================
+   BUTTONS
+====================================================== */
+
+.drag-zone button,
+#feedBtn,
+#mouseToggleBtn,
+#compactBtn,
+#closeBtn {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 28px;
+  height: 28px;
+
+  padding: 0;
+
+  border: none;
+  outline: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 6px;
+
   cursor: pointer;
-  pointer-events: auto;
+
+  color: white;
+
+  background: rgba(255,255,255,0.10);
+
+  transition: 0.15s ease;
 }
-.title {
-  font-size: 12px;
-  color: #aaa;
-  letter-spacing: 2px;
+
+.drag-zone button:hover {
+  background: rgba(255,255,255,0.18);
 }
+
+#closeBtn {
+  border-radius: 50%;
+}
+
+/* ======================================================
+   SERVER DISPLAY
+====================================================== */
+
+.server-display {
+  margin-bottom: 8px;
+
+  font-size: 13px;
+  font-weight: bold;
+
+  color: white;
+}
+
+/* ======================================================
+   PLAYER ROW
+====================================================== */
+
 .player-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .player-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
+/* ======================================================
+   PLAYER FACTION LOGO
+====================================================== */
+
 .my-faction-logo {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
 
   object-fit: contain;
 
-  background: rgba(255,255,255,0.9);
-  border-radius: 50%;
   padding: 3px;
+
+  border-radius: 50%;
+
+  background: rgba(255,255,255,0.9);
 
   filter:
     drop-shadow(0 0 3px black)
     drop-shadow(0 0 6px black);
 }
-.player-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 
-  margin-top: 10px;
-  margin-bottom: 10px;
+/* ======================================================
+   PLAYER INFO
+====================================================== */
+
+.player-info {
+  display: flex;
+  flex-direction: column;
 }
 
 .player {
@@ -231,7 +398,56 @@ select {
   font-weight: bold;
 }
 
+/* ======================================================
+   ONLINE STATUS
+====================================================== */
+
+.player-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  margin-top: 2px;
+
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+}
+
+.online {
+  color: #4cff7a;
+}
+
+.offline {
+  color: #ff4c4c;
+}
+
+.player-status.online .status-dot {
+  background: #4cff7a;
+}
+
+.player-status.offline .status-dot {
+  background: #ff4c4c;
+}
+
+/* ======================================================
+   MATCH SCORE
+====================================================== */
+
 .match-score {
+  display: flex;
+  align-items: center;
+
+  pointer-events: none;
+}
+
+.score-line {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -241,20 +457,11 @@ select {
 
   color: white;
 }
-#mouseToggleBtn {
-  transition: 0.2s ease;
 
-  font-weight: bold;
-
-  border: none;
-  border-radius: 6px;
-
-  width: 28px;
-  height: 28px;
-}
 .team-logo {
   width: 26px;
   height: 26px;
+
   object-fit: contain;
 
   filter:
@@ -262,145 +469,162 @@ select {
     brightness(2)
     drop-shadow(0 0 3px black);
 }
-#closeBtn {
-  -webkit-app-region: no-drag;
-  background: rgba(255,255,255,0.1);
-  border: none;
-  color: white;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  cursor: pointer;
-}
 
-.player {
-  font-size: 22px;
-  font-weight: bold;
-  margin-top: 8px;
-}
+/* ======================================================
+   STATS
+====================================================== */
 
 .stats {
   display: flex;
   justify-content: space-between;
-  margin-top: 10px;
-  background: rgba(255,255,255,0.08);
+
+  gap: 4px;
+
+  margin-bottom: 10px;
+
   padding: 8px;
+
   border-radius: 10px;
+
+  background: rgba(255,255,255,0.08);
+
   font-size: 13px;
 }
 
-#event {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  background: rgba(0, 255, 136, 0.12);
-  color: #00ff88;
-  font-weight: bold;
-  font-size: 14px;
-}
+/* ======================================================
+   RESOURCES
+====================================================== */
 
-.death {
-  background: rgba(255, 60, 60, 0.15) !important;
-  color: #ff5555 !important;
-}
 .resources {
   display: grid;
+
   grid-template-columns: repeat(4, 1fr);
+
   gap: 6px;
-  margin-top: 8px;
+
+  margin-bottom: 10px;
 }
 
 .resources div {
-  background: rgba(255,255,255,0.08);
-  border-radius: 8px;
   padding: 6px;
-  font-size: 12px;
+
   text-align: center;
+
+  border-radius: 8px;
+
+  background: rgba(255,255,255,0.08);
+
+  font-size: 12px;
 }
 
 .resources span {
   display: block;
+
+  margin-top: 2px;
+
   font-weight: bold;
+
   color: #ffd166;
 }
+
+/* ======================================================
+   LEADERBOARDS
+====================================================== */
+
 .leaderboards {
+  flex: 1;
+
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(160px, 1fr));
+
   gap: 12px;
-  margin-top: 12px;
+
+  min-height: 0;
+
+  overflow: hidden;
 }
 
+/* ======================================================
+   BOARD
+====================================================== */
+
 .board {
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+  min-width: 0;
+
   padding: 8px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  background: rgba(0,0,0,0.55);
 }
 
 .board h3 {
   margin: 0 0 6px 0;
+
   font-size: 12px;
+
   color: #ffd166;
 }
+
+/* ======================================================
+   TOP ROW
+====================================================== */
 
 .top-row {
   display: flex;
   justify-content: space-between;
+
   gap: 10px;
-  font-size: 11px;
+
   padding: 3px 0;
+
+  font-size: 11px;
 }
 
 .top-row span {
-  white-space: nowrap;
   overflow: hidden;
+
+  white-space: nowrap;
+
   text-overflow: ellipsis;
 }
 
 .top-row strong {
-   color: #00ff88;
+  color: #00ff88;
 }
-#serverSelect {
-  width: 100%;
+
+/* ======================================================
+   TANK PANEL
+====================================================== */
+
+#tankPanel {
   margin-top: 10px;
-  margin-bottom: 8px;
 
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.18);
-
-  color: rgb(255, 255, 255);
-  padding: 10px 12px;
+  padding: 10px;
 
   border-radius: 10px;
-  outline: none;
 
-  font-size: 13px;
-  font-weight: bold;
+  border: 1px solid rgba(255,255,255,0.15);
 
-  cursor: pointer;
-
-  transition: 0.2s ease;
-  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.55);
 }
 
-#serverSelect:hover {
-  background: rgba(255,255,255,0.14);
-  border-color: rgba(255,255,255,0.28);
+#tankPanel input {
+  width: 100%;
+
+  margin: 4px 0;
 }
 
-#serverSelect:focus {
-  border-color: #00ff88;
-  box-shadow: 0 0 12px rgba(0,255,136,0.35);
-}
+/* ======================================================
+   CREDITS
+====================================================== */
 
-#serverSelect option {
-  background: #11161d;
-  color: white;
-}
-#serverSelect {
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
 .credits {
   margin-top: 10px;
   padding-top: 8px;
@@ -410,15 +634,15 @@ select {
   justify-content: center;
   gap: 6px;
 
+  border-top: 1px solid rgba(255,255,255,0.08);
+
   font-size: 9px;
   font-weight: bold;
-
-  color: rgba(255,255,255,0.45);
 
   letter-spacing: 1px;
   text-transform: uppercase;
 
-  border-top: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.45);
 }
 
 .credit-logo {
@@ -426,31 +650,123 @@ select {
   height: 32px;
 
   object-fit: contain;
-  border-radius: 50%;
-}
-.top-buttons {
-  display: flex;
-  gap: 6px;
-}
-
-#compactBtn,
-#closeBtn {
-  -webkit-app-region: no-drag;
-
-  background: rgba(255,255,255,0.1);
-  border: none;
-
-  color: white;
 
   border-radius: 50%;
-
-  width: 22px;
-  height: 22px;
-
-  cursor: pointer;
 }
-.top-btn {
+
+/* ======================================================
+   START SCREEN
+====================================================== */
+
+.start-screen {
+  position: fixed;
+  inset: 0;
+
+  z-index: 999999;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  background: rgba(0,0,0,0);
+
+  backdrop-filter: blur(8px);
 }
+
+.start-box {
+  width: 320px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 22px;
+
+  border-radius: 16px;
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  background: rgba(12,15,20,0.96);
+
+  box-shadow:
+    0 0 25px rgba(0,0,0,0.45);
+}
+
+.start-box h3 {
+  margin: 0;
+
+  text-align: center;
+
+  font-size: 18px;
+
+  letter-spacing: 1px;
+
+  color: white;
+}
+
+#startPlayerName{
+  width:100%;
+  height:45px;
+
+  border:none;
+  border-radius:10px;
+
+  background:rgba(255,255,255,0.08);
+
+  color:white;
+  padding:0 15px;
+}
+.support-project{
+  color: rgba(255,255,255,0.65);
+  font-size: 12px;
+  margin: 8px 0;
+}
+
+#donateBtn{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,209,102,0.4);
+
+  color: #ffd166;
+
+  font-weight: bold;
+}
+#startBtn,
+#donateBtn{
+
+  width:100%;
+  height:42px;
+
+  border:none;
+  border-radius:10px;
+
+  color:white;
+  font-weight:bold;
+
+  cursor:pointer;
+}
+
+#startBtn{
+  background:#2d4237;
+}
+
+#donateBtn{
+  background: transparent;
+  border: 1px solid rgba(255,209,102,0.5);
+
+  color: #ffd166;
+}
+
+#startBtn:hover {
+  transform: scale(1.02);
+
+  background: #3d5d4d;
+}
+
+/* ======================================================
+   HIDDEN
+====================================================== */
+
+.hidden {
+  display: none !important;
+}
+

@@ -33,7 +33,13 @@ const SERVERS = {
   serv3: "https://serv3.7ecompagnie.fr/api/get_live_game_stats",
   serv4: "https://serv4.7ecompagnie.fr/api/get_live_game_stats",
   serv5: "http://5.189.173.70:7012/api/get_live_game_stats",
-  serv6: "http://cfr.tagadap.ovh:7010/api/get_live_game_stats"
+  serv6: "http://cfr.tagadap.ovh:7010/api/get_live_game_stats",
+  serv7: "https://stats1.the-circle.team/api/get_live_game_stats",
+  serv8: "https://stats2.the-circle.team/api/get_live_game_stats",
+  serv9: "https://stats3.the-circle.team/api/get_live_game_stats",
+  serv10: "https://stats4.the-circle.team/api/get_live_game_stats",
+  serv11: "https://stats5.the-circle.team/api/get_live_game_stats",
+  serv12: "https://stats6.the-circle.team/api/get_live_game_stats"
 };
 
 const PUBLIC_INFO = {
@@ -42,9 +48,28 @@ const PUBLIC_INFO = {
   serv3: "https://serv3.7ecompagnie.fr/api/get_public_info",
   serv4: "https://serv4.7ecompagnie.fr/api/get_public_info",
   serv5: "http://5.189.173.70:7012/api/get_public_info",
-  serv6: "http://cfr.tagadap.ovh:7010/api/get_public_info"
+  serv6: "http://cfr.tagadap.ovh:7010/api/get_public_info",
+  serv7: "https://stats1.the-circle.team/api/get_public_info",
+  serv8: "https://stats2.the-circle.team/api/get_public_info",
+  serv9: "https://stats3.the-circle.team/api/get_public_info",
+  serv10: "https://stats4.the-circle.team/api/get_public_info",
+  serv11: "https://stats5.the-circle.team/api/get_public_info",
+  serv12: "https://stats6.the-circle.team/api/get_public_info"
 };
-
+const SCOREBOARDS = {
+  serv1: "https://serv1.7ecompagnie.fr/api/get_live_scoreboard",
+  serv2: "https://serv2.7ecompagnie.fr/api/get_live_scoreboard",
+  serv3: "https://serv3.7ecompagnie.fr/api/get_live_scoreboard",
+  serv4: "https://serv4.7ecompagnie.fr/api/get_live_scoreboard",
+  serv5: "http://5.189.173.70:7012/api/get_live_scoreboard",
+  serv6: "http://cfr.tagadap.ovh:7010/api/get_live_scoreboard",
+  serv7: "https://stats1.the-circle.team/api/get_live_scoreboard",
+  serv8: "https://stats2.the-circle.team/api/get_live_scoreboard",
+  serv9: "https://stats3.the-circle.team/api/get_live_scoreboard",
+  serv10: "https://stats4.the-circle.team/api/get_live_scoreboard",
+  serv11: "https://stats5.the-circle.team/api/get_live_scoreboard",
+  serv12: "https://stats6.the-circle.team/api/get_live_scoreboard"
+};
 app.commandLine.appendSwitch("disable-http-cache");
 
 // ===============================
@@ -52,24 +77,31 @@ app.commandLine.appendSwitch("disable-http-cache");
 // ===============================
 
 function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 460,
-    height: 690,
-    x: 50,
-    y: 30,
-    frame: false,
-    transparent: true,
-    alwaysOnTop: true,
-    resizable: false,
-    skipTaskbar: true,
-    webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true
-    }
-  });
 
-  mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
-  mainWindow.setAlwaysOnTop(true, "screen-saver");
+mainWindow = new BrowserWindow({
+  width:280,
+  height: 500,
+  useContentSize: true,
+  frame: false,
+  transparent: true,
+  alwaysOnTop: true,
+  resizable: false,
+  skipTaskbar: true,
+  webPreferences: {
+    contextIsolation: false,
+    nodeIntegration: true
+  }
+});
+   mainWindow.loadFile(
+    path.join(__dirname, "renderer", "index.html")
+  );
+ mainWindow.setMinimumSize(200, 370);
+  mainWindow.setMaximumSize(450, 1200);
+  mainWindow.setAlwaysOnTop(
+    true,
+    "screen-saver"
+  );
+
   mainWindow.setIgnoreMouseEvents(false);
 
   mainWindow.on("closed", () => {
@@ -124,20 +156,23 @@ function createTankWindow() {
     return;
   }
 
-  tankWindow = new BrowserWindow({
-    width: 420,
-    height: 260,
-    x: 50,
-    y: 480,
-    frame: false,
-    transparent: true,
-    alwaysOnTop: true,
-    skipTaskbar: true,
-    webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true
-    }
-  });
+tankWindow = new BrowserWindow({
+  width: 800,
+  height: 400,
+  x: 50,
+  y: 480,
+  frame: false,
+  transparent: true,
+  alwaysOnTop: true,
+  resizable: false,
+  skipTaskbar: true,
+  webPreferences: {
+    contextIsolation: false,
+    nodeIntegration: true
+  }
+});
+tankWindow.setMinimumSize(800, 400);
+tankWindow.setMaximumSize(800, 400);
 
   tankWindow.loadFile(path.join(__dirname, "renderer", "tank.html"));
   tankWindow.setAlwaysOnTop(true, "screen-saver");
@@ -263,7 +298,7 @@ async function updateTankCrewStats() {
         sendFeedEvent({
           serverKey: tankServerKey,
           type: "kill",
-          text: `🛡️ ${player.name} a tué ${victim} avec ${weapon}`
+          text: `🪖 ${player.name} a tué ${victim} avec ${weapon}`
         });
 
         continue;
@@ -302,7 +337,29 @@ async function updateTankCrewStats() {
 ipcMain.on("my-player-name-change", (event, name) => {
   myPlayerName = normalize(name);
 });
+ipcMain.on("quit-app", () => {
+  app.quit();
+});
+ipcMain.on("set-main-size", (event, size) => {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
 
+  mainWindow.setContentSize(size.width, size.height);
+});
+ipcMain.on("overlay-opacity-change", (event, opacity) => {
+  const value = Number(opacity);
+
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("overlay-opacity-apply", value);
+  }
+
+  if (feedWindow && !feedWindow.isDestroyed()) {
+    feedWindow.webContents.send("overlay-opacity-apply", value);
+  }
+
+  if (tankWindow && !tankWindow.isDestroyed()) {
+    tankWindow.webContents.send("overlay-opacity-apply", value);
+  }
+});
 ipcMain.handle("get-hll-stats", async (event, serverKey = "serv2") => {
   const apiUrl = SERVERS[serverKey];
 
@@ -318,7 +375,22 @@ ipcMain.handle("get-hll-stats", async (event, serverKey = "serv2") => {
 
   return await response.json();
 });
+ipcMain.handle("get-live-scoreboard", async (event, serverKey = "serv2") => {
 
+  const apiUrl = SCOREBOARDS[serverKey];
+
+  if (!apiUrl) {
+    throw new Error("Scoreboard inconnu : " + serverKey);
+  }
+
+  const response = await fetch(apiUrl);
+
+  if (!response.ok) {
+    throw new Error("Scoreboard inaccessible : " + serverKey);
+  }
+
+  return await response.json();
+});
 ipcMain.handle("get-public-info", async (event, serverKey = "serv2") => {
   const apiUrl = PUBLIC_INFO[serverKey];
 
@@ -334,7 +406,64 @@ ipcMain.handle("get-public-info", async (event, serverKey = "serv2") => {
 
   return await response.json();
 });
+ipcMain.handle("find-my-server", async (event, playerName) => {
 
+  playerName =
+    String(playerName || "")
+      .toLowerCase()
+      .trim();
+
+  for (const [key, url] of Object.entries(SCOREBOARDS)) {
+
+    try {
+
+      const response =
+        await fetch(url);
+
+      const json =
+        await response.json();
+
+      const stats =
+        json?.result?.stats ||
+        json?.stats ||
+        json?.scoreboard?.result?.stats;
+
+      if (!Array.isArray(stats)) {
+        continue;
+      }
+
+      const found = stats.find(p => {
+
+     const name = normalize(p.player);
+const search = normalize(playerName);
+
+return (
+  search.length >= 6 &&
+  name.includes(search)
+);
+      });
+
+      if (found) {
+
+        return {
+          found: true,
+          serverKey: key
+        };
+      }
+
+    } catch (e) {
+      console.error(
+        "Erreur scan serveur",
+        key,
+        e
+      );
+    }
+  }
+
+  return {
+    found: false
+  };
+});
 ipcMain.handle("open-feed-window", () => {
   createFeedWindow();
   return true;
@@ -431,22 +560,15 @@ ipcMain.on("set-compact-mode", (event, compact) => {
   if (!win) return;
 
   if (compact) {
-    win.setBounds({
-      x: 0,
-      y: 0,
-      width: 330,
-      height: 210
-    });
+    win.setMinimumSize(200, 200);
+    win.setContentSize(330, 430);
+    win.setResizable(true);
   } else {
-    win.setBounds({
-      x: 50,
-      y: 30,
-      width: 460,
-      height: 760
-    });
+    win.setMinimumSize(430, 610);
+    win.setContentSize(450, 630);
+    win.setResizable(true);
   }
 });
-
 // ===============================
 // START
 // ===============================
@@ -454,7 +576,7 @@ ipcMain.on("set-compact-mode", (event, compact) => {
 app.whenReady().then(() => {
   createWindow();
 
-  setInterval(updateTankCrewStats, 3000);
+  setInterval(updateTankCrewStats, 30000);
 
   globalShortcut.register("F6", () => {
     if (tankWindow && !tankWindow.isDestroyed()) {

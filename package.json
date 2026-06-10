@@ -1,41 +1,29 @@
 {
-  "name": "HLLStatslive",
-  "version": "1.0.1",
-  "description": "Overlay pour serveur FR Hell Let Loose par TontonCarotte",
-  "author": "[CHM3] TontonCarotte",
-
+  "name": "hllstatslive",
+  "version": "1.0.2",
+  "description": "HLL Live Stats Overlay",
   "main": "main.js",
-
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win"
+    "build": "electron-builder"
   },
-
-   "build": {
-    "appId": "fr.tontoncarotte.hllwidget",
-    "productName": "HLL Widget",
-    "asar": true,
-    "compression": "maximum",
-    "win": {
-      "target": "nsis",
-      "icon": "assets/icon.ico",
-      "publisherName": "[CHM3] TontonCarotte"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "HLL Widget"
-    }
-  },
-  "dependencies": {
-    "winreg": "^1.2.5"
-  },
-
+  "author": "TontonCarotte",
+  "license": "UNLICENSED",
   "devDependencies": {
-    "electron": "^31.0.0",
-    "electron-builder": "^24.13.3"
+    "electron": "^39.2.6",
+    "electron-builder": "^26.15.2"
+  },
+  "build": {
+    "appId": "com.tontoncarotte.hllstatslive",
+    "productName": "HLL Stats Live",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*"
+    ],
+     "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
   }
-}
+}}

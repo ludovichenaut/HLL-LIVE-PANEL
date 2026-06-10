@@ -31,12 +31,16 @@ body {
   overflow: hidden;
   font-family: Arial, sans-serif;
 }
+:root {
+  --overlay-opacity: 0.82;
+}
+
 
 #feedWindow {
   width: 100%;
   height: 100%;
 
-  background: rgba(12,15,20,0.65);
+   background: rgba(12, 15, 20, var(--overlay-opacity));
 
   border-radius: 12px;
   overflow: hidden;
@@ -106,8 +110,8 @@ body {
 }
 
 .feed-row.kill {
-  color: #00ff88;
-  border-left-color: #00ff88;
+  color: #078047;
+  border-left-color: #078047;
 }
 
 .feed-row.death {

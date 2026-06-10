@@ -65,7 +65,9 @@ function render() {
     container.appendChild(div);
   });
 }
-
+ipcRenderer.on("overlay-opacity-apply", (event, opacity) => {
+  document.documentElement.style.setProperty("--overlay-opacity", opacity);
+});
 ipcRenderer.on("feed-event", (event, data) => {
   const serverKey = data?.serverKey;
 
